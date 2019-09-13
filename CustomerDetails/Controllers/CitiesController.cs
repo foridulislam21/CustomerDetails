@@ -10,22 +10,23 @@ using CustomerDeatils.Models;
 
 namespace CustomerDetails
 {
-    public class CountriesController : Controller
+    public class CitiesController : Controller
     {
         private readonly CustomerDbContext _context;
 
-        public CountriesController(CustomerDbContext context)
+        public CitiesController(CustomerDbContext context)
         {
             _context = context;
         }
 
-        // GET: Countries
+        // GET: Cities
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Countries.ToListAsync());
+            var customerDbContext = _context.Cities.Include(c => c.Country);
+            return View(await customerDbContext.ToListAsync());
         }
 
-        // GET: Countries/Details/5
+        // GET: Cities/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,39 +34,42 @@ namespace CustomerDetails
                 return NotFound();
             }
 
-            var country = await _context.Countries
+            var city = await _context.Cities
+                .Include(c => c.Country)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (country == null)
+            if (city == null)
             {
                 return NotFound();
             }
 
-            return View(country);
+            return View(city);
         }
 
-        // GET: Countries/Create
+        // GET: Cities/Create
         public IActionResult Create()
         {
+            ViewData["CountryId"] = new SelectList(_context.Countries, "Id", "CountryCode");
             return View();
         }
 
-        // POST: Countries/Create
+        // POST: Cities/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,CountryCode")] Country country)
+        public async Task<IActionResult> Create([Bind("Id,Name,CountryId")] City city)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(country);
+                _context.Add(city);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(country);
+            ViewData["CountryId"] = new SelectList(_context.Countries, "Id", "CountryCode", city.CountryId);
+            return View(city);
         }
 
-        // GET: Countries/Edit/5
+        // GET: Cities/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,22 +77,23 @@ namespace CustomerDetails
                 return NotFound();
             }
 
-            var country = await _context.Countries.FindAsync(id);
-            if (country == null)
+            var city = await _context.Cities.FindAsync(id);
+            if (city == null)
             {
                 return NotFound();
             }
-            return View(country);
+            ViewData["CountryId"] = new SelectList(_context.Countries, "Id", "CountryCode", city.CountryId);
+            return View(city);
         }
 
-        // POST: Countries/Edit/5
+        // POST: Cities/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CountryCode")] Country country)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CountryId")] City city)
         {
-            if (id != country.Id)
+            if (id != city.Id)
             {
                 return NotFound();
             }
@@ -97,12 +102,12 @@ namespace CustomerDetails
             {
                 try
                 {
-                    _context.Update(country);
+                    _context.Update(city);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CountryExists(country.Id))
+                    if (!CityExists(city.Id))
                     {
                         return NotFound();
                     }
@@ -113,10 +118,11 @@ namespace CustomerDetails
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(country);
+            ViewData["CountryId"] = new SelectList(_context.Countries, "Id", "CountryCode", city.CountryId);
+            return View(city);
         }
 
-        // GET: Countries/Delete/5
+        // GET: Cities/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,30 +130,31 @@ namespace CustomerDetails
                 return NotFound();
             }
 
-            var country = await _context.Countries
+            var city = await _context.Cities
+                .Include(c => c.Country)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (country == null)
+            if (city == null)
             {
                 return NotFound();
             }
 
-            return View(country);
+            return View(city);
         }
 
-        // POST: Countries/Delete/5
+        // POST: Cities/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var country = await _context.Countries.FindAsync(id);
-            _context.Countries.Remove(country);
+            var city = await _context.Cities.FindAsync(id);
+            _context.Cities.Remove(city);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CountryExists(int id)
+        private bool CityExists(int id)
         {
-            return _context.Countries.Any(e => e.Id == id);
+            return _context.Cities.Any(e => e.Id == id);
         }
     }
 }

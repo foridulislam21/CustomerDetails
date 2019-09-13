@@ -10,22 +10,23 @@ using CustomerDeatils.Models;
 
 namespace CustomerDetails
 {
-    public class CountriesController : Controller
+    public class CustomersController : Controller
     {
         private readonly CustomerDbContext _context;
 
-        public CountriesController(CustomerDbContext context)
+        public CustomersController(CustomerDbContext context)
         {
             _context = context;
         }
 
-        // GET: Countries
+        // GET: Customers
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Countries.ToListAsync());
+            var customerDbContext = _context.Customers.Include(c => c.City);
+            return View(await customerDbContext.ToListAsync());
         }
 
-        // GET: Countries/Details/5
+        // GET: Customers/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,39 +34,42 @@ namespace CustomerDetails
                 return NotFound();
             }
 
-            var country = await _context.Countries
+            var customer = await _context.Customers
+                .Include(c => c.City)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (country == null)
+            if (customer == null)
             {
                 return NotFound();
             }
 
-            return View(country);
+            return View(customer);
         }
 
-        // GET: Countries/Create
+        // GET: Customers/Create
         public IActionResult Create()
         {
+            ViewData["CityId"] = new SelectList(_context.Cities, "Id", "Name");
             return View();
         }
 
-        // POST: Countries/Create
+        // POST: Customers/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,CountryCode")] Country country)
+        public async Task<IActionResult> Create([Bind("Id,Name,Address,MobileNo,Email,CityId")] Customer customer)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(country);
+                _context.Add(customer);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(country);
+            ViewData["CityId"] = new SelectList(_context.Cities, "Id", "Name", customer.CityId);
+            return View(customer);
         }
 
-        // GET: Countries/Edit/5
+        // GET: Customers/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,22 +77,23 @@ namespace CustomerDetails
                 return NotFound();
             }
 
-            var country = await _context.Countries.FindAsync(id);
-            if (country == null)
+            var customer = await _context.Customers.FindAsync(id);
+            if (customer == null)
             {
                 return NotFound();
             }
-            return View(country);
+            ViewData["CityId"] = new SelectList(_context.Cities, "Id", "Name", customer.CityId);
+            return View(customer);
         }
 
-        // POST: Countries/Edit/5
+        // POST: Customers/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CountryCode")] Country country)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address,MobileNo,Email,CityId")] Customer customer)
         {
-            if (id != country.Id)
+            if (id != customer.Id)
             {
                 return NotFound();
             }
@@ -97,12 +102,12 @@ namespace CustomerDetails
             {
                 try
                 {
-                    _context.Update(country);
+                    _context.Update(customer);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CountryExists(country.Id))
+                    if (!CustomerExists(customer.Id))
                     {
                         return NotFound();
                     }
@@ -113,10 +118,11 @@ namespace CustomerDetails
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(country);
+            ViewData["CityId"] = new SelectList(_context.Cities, "Id", "Name", customer.CityId);
+            return View(customer);
         }
 
-        // GET: Countries/Delete/5
+        // GET: Customers/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,30 +130,31 @@ namespace CustomerDetails
                 return NotFound();
             }
 
-            var country = await _context.Countries
+            var customer = await _context.Customers
+                .Include(c => c.City)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (country == null)
+            if (customer == null)
             {
                 return NotFound();
             }
 
-            return View(country);
+            return View(customer);
         }
 
-        // POST: Countries/Delete/5
+        // POST: Customers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var country = await _context.Countries.FindAsync(id);
-            _context.Countries.Remove(country);
+            var customer = await _context.Customers.FindAsync(id);
+            _context.Customers.Remove(customer);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CountryExists(int id)
+        private bool CustomerExists(int id)
         {
-            return _context.Countries.Any(e => e.Id == id);
+            return _context.Customers.Any(e => e.Id == id);
         }
     }
 }

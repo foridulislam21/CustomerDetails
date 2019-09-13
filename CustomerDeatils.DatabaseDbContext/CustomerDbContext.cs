@@ -9,6 +9,10 @@ namespace CustomerDeatils.DatabaseDbContext
 {
     public class CustomerDbContext : DbContext
     {
+        public CustomerDbContext()
+        {
+        }
+
         public DbSet<Country> Countries { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<Customer> Customers { get; set; }
