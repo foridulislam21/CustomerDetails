@@ -8,6 +8,17 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CustomerDeatils.DatabaseDbContext\CustomerDeatils.DatabaseDbContext.csproj" />
+    <ProjectReference Include="..\CustomerDeatils.Models\CustomerDeatils.Models.csproj" />
+    <ProjectReference Include="..\CustomerDeatils.Repositories\CustomerDeatils.Repositories.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Views\Countries\" />
+    <Folder Include="Views\Shared\" />
+  </ItemGroup>
 </Project>
